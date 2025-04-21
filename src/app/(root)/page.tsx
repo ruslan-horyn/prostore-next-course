@@ -1,5 +1,8 @@
-import { Button } from "@/components/ui/button";
 
+
+import { ProductList } from "@/components/shared/product/product-list";
+import sampleData from "@/db/sample-data";
 export default async function Home() {
-  return <Button className="text-xl mx-auto">Hello world!!</Button>;
+
+  return <ProductList data={sampleData.products} title="Newest Arrivals" />;
 }

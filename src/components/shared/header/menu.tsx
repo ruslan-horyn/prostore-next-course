@@ -1,16 +1,15 @@
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
-  SheetTitle,
+  SheetTitle
 } from "@/components/ui/sheet";
 
 import { EllipsisVertical, ShoppingCart, UserIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "./mode-toggle";
 import { SheetTrigger } from "@/components/ui/sheet";
+import { ModeToggle } from "./mode-toggle";
 
 export const Menu = () => {
   return (
