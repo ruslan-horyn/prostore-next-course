@@ -1,4 +1,5 @@
 import { Product } from "@/types/product";
+import { ProductCard } from "./product-card";
 
 interface ProductListProps {
   data: Product[];
@@ -14,9 +15,7 @@ export const ProductList = ({ data, title, limit }: ProductListProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {products.length === 0 && <div>No products found</div>}
         {products.map((product) => (
-          <div key={product.slug}>
-            <h3>{product.name}</h3>
-          </div>
+          <ProductCard key={product.slug} product={product} />
         ))}
       </div>
     </div>
