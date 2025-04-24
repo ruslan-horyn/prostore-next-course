@@ -1,8 +1,4 @@
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 import { EllipsisVertical, ShoppingCart, UserIcon } from "lucide-react";
 import Link from "next/link";
