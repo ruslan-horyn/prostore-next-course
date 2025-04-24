@@ -1,9 +1,6 @@
-import {
-  Card,
-  CardContent,
-  CardHeader
-} from "@/components/ui/card";
-import { Product } from "@/types/product";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+import { Product } from "@/generated/prisma";
 import Image from "next/image";
 import Link from "next/link";
 import { ProductPrice } from "./product-price";
@@ -22,7 +19,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             src={product.images![0]}
             alt={product.name}
             className="aspect-square object-cover rounded w-full h-full"
-            height={300 }
+            height={300}
             width={300}
           />
         </Link>
@@ -33,7 +30,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           <h2 className="text-sm font-medium">{product.name}</h2>
         </Link>
         <div className="flex-between gap-4">
-          <p>{product.rating} stars</p>
+          <p>{product.rating.toNumber()} stars</p>
           {product.stock > 0 ? (
             <ProductPrice value={Number(product.price)} />
           ) : (
