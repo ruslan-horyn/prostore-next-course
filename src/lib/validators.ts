@@ -23,3 +23,8 @@ export const insertProjectSchema = z.object({
   numReviews: z.coerce.number().optional(),
   price: currencySchema,
 });
+
+export const signInFormSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
