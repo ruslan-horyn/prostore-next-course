@@ -1,5 +1,5 @@
-import type { Product } from "@/generated/prisma";
-import prisma from "../prisma";
+import { Product } from "@/types/product";
+import { prisma } from "../prisma";
 import { convertToPlainObject } from "../utils";
 import { LATEST_PRODUCTS_LIMIT } from "../constants";
 

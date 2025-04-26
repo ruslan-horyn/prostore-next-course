@@ -7,3 +7,4 @@ export const API_URL = process.env.API_URL || "http://localhost:3000/api";
 export const LATEST_PRODUCTS_LIMIT = Number(
   process.env.LATEST_PRODUCTS_LIMIT || 4
 );
+export const SCHEMA_NAME = process.env.SCHEMA_NAME || "prostore-next-course";

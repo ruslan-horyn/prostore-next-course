@@ -5,6 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const convertToPlainObject = <T>(obj: T): T => {
+export const convertToPlainObject = <T>(obj: unknown): T => {
   return JSON.parse(JSON.stringify(obj)) as T;
+};
+
+export const formatNumberWithDecimals = (number: number) => {
+  return number.toFixed(2);
 };
