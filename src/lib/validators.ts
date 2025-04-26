@@ -20,5 +20,6 @@ export const insertProjectSchema = z.object({
   images: z.array(z.string()).min(1, "Project must have at least one image"),
   isFeatured: z.boolean().optional(),
   banner: z.string().optional(),
+  numReviews: z.coerce.number().optional(),
   price: currencySchema,
 });

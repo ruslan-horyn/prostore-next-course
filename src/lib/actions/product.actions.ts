@@ -12,3 +12,12 @@ export const getLatestProducts = async () => {
   });
   return convertToPlainObject<Product[]>(products);
 };
+
+export async function getProductBySlug(slug: string) {
+  const product = await prisma.product.findFirst({
+    where: { slug: slug },
+  });
+
+  if (!product) return null;
+  return convertToPlainObject<Product>(product);
+}
