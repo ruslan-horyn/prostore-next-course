@@ -2,12 +2,39 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signInWithCredentials } from "@/lib/actions/user.actions";
 import { signInDefaultValues } from "@/lib/constants";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+
+const SignInButton = () => {
+  const { pending } = useFormStatus();
+  return (
+    <Button disabled={pending} className="w-full" variant="default">
+      {pending ? "Signing In..." : "Sign In with credentials"}
+    </Button>
+  );
+};
 
 export const CredentialsSignInForm = () => {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+
+  const [state, action] = useActionState(signInWithCredentials, {
+    success: false,
+    message: "",
+  });
+
   return (
-    <form>
+    <form action={action}>
+      <Input
+        name="callbackUrl"
+        defaultValue={callbackUrl}
+        autoComplete="off"
+        hidden
+      />
       <div className="space-y-6">
         <div>
           <Label htmlFor="email">Email</Label>
@@ -31,11 +58,13 @@ export const CredentialsSignInForm = () => {
             autoComplete="current-password"
           />
         </div>
-        <div>
-          <Button className="w-full" variant="default">
-            Sign In
-          </Button>
-        </div>
+        <SignInButton />
+
+        {state && !state.success && (
+          <p className="text-sm text-center text-destructive">
+            {state.message}
+          </p>
+        )}
 
         <div className="text-sm text-center text-muted-foreground">
           Don&apos;t have an account?{" "}
