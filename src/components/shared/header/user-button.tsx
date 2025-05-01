@@ -25,7 +25,7 @@ export const UserButton = async () => {
     );
   }
   const userName = session.user.name ?? "User";
-  const firstInitial = userName.charAt(0).toUpperCase();
+  const firstInitial = userName.trim().charAt(0).toUpperCase();
 
   return (
     <div className="flex gap-2 items-center">
