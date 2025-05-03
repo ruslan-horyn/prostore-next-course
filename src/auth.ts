@@ -63,9 +63,40 @@ export const config = {
     }),
   ],
   callbacks: {
+    async jwt({ token, user, session, trigger }) {
+      if (!user || !user.email) {
+        return token;
+      }
+      const { id, email, name = "NO_NAME", role } = user;
+
+      token.role = role;
+      if (name === "NO_NAME") {
+        const [name] = email.split("@");
+        token.name = name;
+
+        await prisma.user.update({
+          where: { id },
+          data: { name },
+        });
+      }
+
+      if (session?.user.name && trigger === "update") {
+        token.name = session.user.name;
+      }
+
+      return token;
+    },
     async session({ session, user, trigger, token }) {
       if (token.sub) {
         session.user.id = token.sub;
+      }
+
+      if (token.role) {
+        session.user.role = token.role;
+      }
+
+      if (token.name) {
+        session.user.name = token.name;
       }
 
       if (trigger === "update") {
