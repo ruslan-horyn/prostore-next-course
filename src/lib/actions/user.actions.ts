@@ -2,10 +2,11 @@
 
 import { signIn, signOut as signOutAuth } from "@/auth";
 
-import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { signInFormSchema, signUpFormSchema } from "../validators";
-import { hashSync } from "bcrypt-ts-edge";
 import { prisma } from "@/lib/prisma";
+import { hashSync } from "bcrypt-ts-edge";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { formatError } from "../error-handlers";
+import { signInFormSchema, signUpFormSchema } from "../validators";
 
 export async function signInWithCredentials(
   _prevState: unknown,
@@ -65,7 +66,7 @@ export async function signUp(_prevState: unknown, formData: FormData) {
 
     return {
       success: false,
-      message: "Something went wrong",
+      message: formatError(error),
     };
   }
 }

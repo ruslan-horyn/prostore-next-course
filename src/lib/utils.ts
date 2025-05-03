@@ -8,7 +8,3 @@ export function cn(...inputs: ClassValue[]) {
 export const convertToPlainObject = <T>(obj: unknown): T => {
   return JSON.parse(JSON.stringify(obj)) as T;
 };
-
-export const formatNumberWithDecimals = (number: number) => {
-  return number.toFixed(2);
-};
