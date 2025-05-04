@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
 
 @layer utilities {
   .wrapper {
@@ -10,6 +9,7 @@
   .flex-start {
     @apply flex justify-start items-center;
   }
+
   .flex-center {
     @apply flex justify-center items-center;
   }
@@ -59,6 +59,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
