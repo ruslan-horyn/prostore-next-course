@@ -24,7 +24,13 @@
     ],
     "paths": {
       "@/*": [
-        "./src/*"
+        "./*"
+      ],
+      "@app-prisma/*": [
+        "./generated/prisma/*"
+      ],
+      "auth": [
+        "./auth.ts"
       ]
     }
   },
@@ -35,6 +41,7 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules/**/",
+    "generated/**/"
   ]
 }

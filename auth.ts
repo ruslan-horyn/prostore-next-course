@@ -1,26 +1,27 @@
-import NextAuth, { NextAuthConfig } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
-import type { PrismaClient } from "@prisma/client";
-import { compareSync } from "bcrypt-ts-edge";
-import { z } from "zod";
+import NextAuth, { NextAuthConfig } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import { prisma } from '@/lib/prisma';
+import type { PrismaClient } from '@prisma/client';
+import { compareSync } from 'bcrypt-ts-edge';
+import { z } from 'zod';
+import { authConfig } from './auth.config';
 
 export const config = {
   pages: {
-    signIn: "/auth/sign-in",
-    error: "/auth/sign-in",
+    signIn: '/auth/sign-in',
+    error: '/auth/sign-in',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60,
   },
   adapter: PrismaAdapter(prisma as PrismaClient),
   providers: [
     CredentialsProvider({
       credentials: {
-        email: { type: "email" },
-        password: { type: "password" },
+        email: { type: 'email' },
+        password: { type: 'password' },
       },
       async authorize(credentials) {
         const result = z
@@ -63,15 +64,16 @@ export const config = {
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async jwt({ token, user, session, trigger }) {
       if (!user || !user.email) {
         return token;
       }
-      const { id, email, name = "NO_NAME", role } = user;
+      const { id, email, name = 'NO_NAME', role } = user;
 
       token.role = role;
-      if (name === "NO_NAME") {
-        const [name] = email.split("@");
+      if (name === 'NO_NAME') {
+        const [name] = email.split('@');
         token.name = name;
 
         await prisma.user.update({
@@ -80,7 +82,7 @@ export const config = {
         });
       }
 
-      if (session?.user.name && trigger === "update") {
+      if (session?.user.name && trigger === 'update') {
         token.name = session.user.name;
       }
 
@@ -99,7 +101,7 @@ export const config = {
         session.user.name = token.name;
       }
 
-      if (trigger === "update") {
+      if (trigger === 'update') {
         session.user.name = user.name;
       }
 

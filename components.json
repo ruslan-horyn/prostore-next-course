@@ -17,7 +17,9 @@
     "lib": "@/lib",
     "hooks": "@/hooks",
     "types": "@/types",
-    "db": "@/db"
+    "db": "@/db",
+    "auth": "./auth.ts",
+    "app-prisma": "./generated/prisma"
   },
   "iconLibrary": "lucide"
 }
