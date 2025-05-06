@@ -6,12 +6,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { APP_NAME } from '@/lib/constants';
+import { envs } from '@/lib/constants';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from 'auth';
+
+const { APP_NAME } = envs;
 
 export const metadata: Metadata = {
   title: 'Sign In',

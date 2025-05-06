@@ -9,6 +9,7 @@
     "lint": "next lint",
     "prisma:generate": "prisma generate",
     "prisma:seed": "npx tsx ./db/seed",
+    "prisma:studio": "prisma studio",
     "postinstall": "npm run prisma:generate"
   },
   "dependencies": {

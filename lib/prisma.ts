@@ -1,7 +1,7 @@
 import { neonConfig } from '@neondatabase/serverless';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import ws from 'ws';
-import { SCHEMA_NAME } from './constants';
+import { envs } from './constants';
 import { PrismaClient } from '@/generated/prisma';
 
 // Sets up WebSocket connections, which enables Neon to use WebSocket communication.
@@ -16,7 +16,7 @@ const globalForPrisma = global as unknown as {
 const adapter = new PrismaNeon(
   { connectionString },
   {
-    schema: SCHEMA_NAME,
+    schema: envs.SCHEMA_NAME,
   }
 );
 // Extends the PrismaClient with a custom result transformer to convert the price and rating fields to strings.

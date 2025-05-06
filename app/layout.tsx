@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { APP_DESCRIPTION, SERVER_URL } from "@/lib/constants";
-import { APP_NAME } from "@/lib/constants";
-import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from '@/components/ui/sonner';
+import { envs } from '@/lib/constants';
+import type { Metadata } from 'next';
+import { ThemeProvider } from 'next-themes';
+import { Inter } from 'next/font/google';
+import './globals.css';
+
+const { APP_NAME, APP_DESCRIPTION, SERVER_URL } = envs;
 
 const inter = Inter({
-  subsets: ["latin"],
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   description: APP_DESCRIPTION,
   metadataBase: new URL(SERVER_URL),
   icons: {
-    icon: "/favicon.ico",
+    icon: '/favicon.ico',
   },
 };
 
@@ -28,19 +29,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang='en' suppressHydrationWarning>
       <body
         className={`${inter.className} antialiased`}
         suppressHydrationWarning
       >
         <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
+          attribute='class'
+          defaultTheme='dark'
           enableSystem={false}
-          themes={["dark", "light"]}
+          themes={['dark', 'light']}
         >
           {children}
-          <Toaster visibleToasts={3} swipeDirections={["right", "left"]} />
+          <Toaster visibleToasts={3} swipeDirections={['right', 'left']} />
         </ThemeProvider>
       </body>
     </html>
