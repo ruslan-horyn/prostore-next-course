@@ -2,47 +2,16 @@
 
 import { Cart, CartItem } from '@/types/cart';
 import { Product } from '@/types/product';
-import { cookies as cookiesHeaders } from 'next/headers';
-import { formatError } from '../error-handlers';
+import { formatError } from '../../error-handlers';
 
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
+import { getMyCard } from '@/lib/card/get-my-card';
 import { revalidatePath } from 'next/cache';
-import { calculateCartPrise } from '../card';
-import { cookieNames } from '../constants';
-import { convertToPlainObject } from '../utils';
-import { cartItemSchema, insertCartSchema } from '../validators';
-
-export const getMyCard = async ({
-  userId,
-  sessionCartId,
-}: {
-  userId?: string;
-  sessionCartId?: string;
-}) => {
-  const card = await prisma.cart.findFirst({
-    where: userId ? { userId } : { sessionCartId },
-  });
-
-  if (!card) {
-    return undefined;
-  }
-
-  return convertToPlainObject<Cart>(card);
-};
-
-export const getSessionCartId = async () => {
-  const cookies = await cookiesHeaders();
-  const sessionCartIdCookie = cookies.get(cookieNames.sessionCartId);
-  let sessionCartId = sessionCartIdCookie?.value;
-
-  if (!sessionCartId) {
-    sessionCartId = crypto.randomUUID();
-    cookies.set(cookieNames.sessionCartId, sessionCartId);
-  }
-
-  return sessionCartId;
-};
+import { calculateCartPrise } from '../../card';
+import { getSessionCartId } from '../../cookies/get-session-car-id';
+import { convertToPlainObject } from '../../utils';
+import { cartItemSchema, insertCartSchema } from '../../validators';
 
 export const addItemToNonExistingCart = async ({
   userId,
@@ -114,16 +83,12 @@ export const addItemToCart = async (data: CartItem) => {
 
     const [card, product] = await Promise.all([
       getMyCard({ userId, sessionCartId }),
-      prisma.product.findFirst({
+      prisma.product.findFirstOrThrow({
         where: {
           id: item.productId,
         },
       }),
     ]);
-
-    if (!product) {
-      throw new Error('Product not found');
-    }
 
     if (!card) {
       await addItemToNonExistingCart({
@@ -135,7 +100,7 @@ export const addItemToCart = async (data: CartItem) => {
 
     if (card) {
       await addItemToExistingCart({
-        item: item,
+        item,
         card,
         product: convertToPlainObject<Product>(product),
       });

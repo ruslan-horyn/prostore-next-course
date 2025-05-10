@@ -36,9 +36,9 @@ export const handlePrismaClientKnownRequestError = (
         fieldName.charAt(0).toUpperCase() + fieldName.slice(1)
       } already exists`;
     case 'P2025': // Record not found
-      return 'Record not found';
+      return `Record ${error.meta?.model ?? ''} not found`;
     case 'P2003': // Foreign key constraint failed
-      return 'Related record not found';
+      return `Related record ${error.meta?.target ?? ''} not found`;
     case 'P2001': // Record does not exist
       return "The record you're trying to update doesn't exist";
     case 'P2014': // The provided ID is invalid
