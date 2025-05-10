@@ -1,14 +1,14 @@
 'use server';
-import { calculateCartPrise } from '@/lib/card';
-import { getMyCard } from '@/lib/card/get-my-card';
+import { calculateCartPrise } from '@/lib/cart';
+import { getMyCart } from '@/lib/cart/get-my-cart';
 import { formatError } from '@/lib/error-handlers';
+import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { prisma } from '../../prisma';
 
 export const removeItemFromCart = async (productId: string) => {
   try {
     const [card, product] = await Promise.all([
-      getMyCard(),
+      getMyCart(),
       prisma.product.findFirstOrThrow({
         where: {
           id: productId,

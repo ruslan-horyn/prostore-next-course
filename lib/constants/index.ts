@@ -24,6 +24,13 @@ export const formFieldsDefaultValues = {
     password: '',
     confirmPassword: '',
   },
+  shippingAddress: {
+    fullName: 'John Doe',
+    streetAddress: '123 Main St',
+    city: 'Anytown',
+    postalCode: '12345',
+    country: 'USA',
+  },
 };
 
 export const cookieNames = {

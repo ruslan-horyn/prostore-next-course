@@ -127,7 +127,7 @@ export const CartTable = ({ cart }: { cart: Cart | undefined }) => {
           </Table>
         </div>
         <Card>
-          <CardContent className='gap-4 p-4'>
+          <CardContent className='gap-4 px-4'>
             <div className='pb-3 text-xl'>
               Subtotal ({cart.items.reduce((a, c) => a + c.qty, 0)}):
               {formatCurrency(cart.itemsPrice)}

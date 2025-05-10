@@ -1,17 +1,16 @@
 'use server';
 
+import { auth } from '@/auth';
+import { calculateCartPrise } from '@/lib/cart';
+import { getMyCart } from '@/lib/cart/get-my-cart';
+import { getSessionCartId } from '@/lib/cookies/get-session-car-id';
+import { formatError } from '@/lib/error-handlers';
+import { prisma } from '@/lib/prisma';
+import { convertToPlainObject } from '@/lib/utils';
+import { cartItemSchema, insertCartSchema } from '@/lib/validators';
 import { Cart, CartItem } from '@/types/cart';
 import { Product } from '@/types/product';
-import { formatError } from '../../error-handlers';
-
-import { auth } from '@/auth';
-import { prisma } from '@/lib/prisma';
-import { getMyCard } from '@/lib/card/get-my-card';
 import { revalidatePath } from 'next/cache';
-import { calculateCartPrise } from '../../card';
-import { getSessionCartId } from '../../cookies/get-session-car-id';
-import { convertToPlainObject } from '../../utils';
-import { cartItemSchema, insertCartSchema } from '../../validators';
 
 export const addItemToNonExistingCart = async ({
   userId,
@@ -82,7 +81,7 @@ export const addItemToCart = async (data: CartItem) => {
     const userId = session?.user?.id;
 
     const [card, product] = await Promise.all([
-      getMyCard(),
+      getMyCart(),
       prisma.product.findFirstOrThrow({
         where: {
           id: item.productId,

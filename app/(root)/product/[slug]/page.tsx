@@ -4,7 +4,7 @@ import { ProductPrice } from '@/components/shared/product/product-price';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { getProductBySlug } from '@/lib/actions/product.actions';
-import { getMyCard } from '@/lib/card/get-my-card';
+import { getMyCart } from '@/lib/cart/get-my-cart';
 import { notFound } from 'next/navigation';
 
 interface ProductDetailsPageProps {
@@ -16,7 +16,7 @@ const ProductDetailsPage = async ({ params }: ProductDetailsPageProps) => {
 
   const [product, card] = await Promise.all([
     getProductBySlug(slug),
-    getMyCard(),
+    getMyCart(),
   ]);
   if (!product) notFound();
 

@@ -7,18 +7,18 @@ import { convertToPlainObject } from '@/lib/utils';
 import { getSessionCartId } from '../cookies/get-session-car-id';
 import { auth } from '@/auth';
 
-export const getMyCard = async () => {
+export const getMyCart = async () => {
   const sessionCartId = await getSessionCartId();
   const session = await auth();
   const userId = session?.user?.id;
 
-  const card = await prisma.cart.findFirst({
+  const cart = await prisma.cart.findFirst({
     where: userId ? { userId } : { sessionCartId },
   });
 
-  if (!card) {
+  if (!cart) {
     return undefined;
   }
 
-  return convertToPlainObject<Cart>(card);
+  return convertToPlainObject<Cart>(cart);
 };

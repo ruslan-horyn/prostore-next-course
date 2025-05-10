@@ -70,3 +70,15 @@ export async function signUp(_prevState: unknown, formData: FormData) {
     };
   }
 }
+
+export async function getUserById(id: string) {
+  const user = await prisma.user.findFirst({
+    where: { id },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  return user;
+}

@@ -17,7 +17,7 @@ export const roundTwo = (value: number | string) => {
 };
 
 const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
-  currency: 'PLN',
+  currency: 'USD',
   style: 'currency',
   minimumFractionDigits: 2,
 });
