@@ -15,3 +15,14 @@ export const roundTwo = (value: number | string) => {
 
   return Math.round((numberValue + Number.EPSILON) * 100) / 100;
 };
+
+const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
+  currency: 'PLN',
+  style: 'currency',
+  minimumFractionDigits: 2,
+});
+
+export function formatCurrency(amount: number | string | null | undefined) {
+  if (!amount || isNaN(Number(amount))) return 'NaN';
+  return CURRENCY_FORMATTER.format(Number(amount));
+}

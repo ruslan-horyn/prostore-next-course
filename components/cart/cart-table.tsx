@@ -1,30 +1,30 @@
 'use client';
 
-import { Cart, CartItem } from '@/types/cart';
-import { useTransition } from 'react';
-import { toast } from 'sonner';
-
-import { useRouter } from 'next/navigation';
-
 import {
   addItemToCart as addItemToCartAction,
   removeItemFromCart as removeItemFromCartAction,
 } from '@/lib/actions/card';
+import { formatCurrency } from '@/lib/utils';
+import { Cart, CartItem } from '@/types/cart';
 import { ArrowRight, Loader, Minus, Plus } from 'lucide-react';
-
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
+import { toast } from 'sonner';
+import { Button } from '../ui/button';
+import { Card, CardContent } from '../ui/card';
 import {
   Table,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
-  TableCell,
 } from '../ui/table';
-import { Button } from '../ui/button';
 
 export const CartTable = ({ cart }: { cart: Cart | undefined }) => {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const removeItemFromCart = async (productId: string) => {
@@ -126,6 +126,28 @@ export const CartTable = ({ cart }: { cart: Cart | undefined }) => {
             </TableBody>
           </Table>
         </div>
+        <Card>
+          <CardContent className='gap-4 p-4'>
+            <div className='pb-3 text-xl'>
+              Subtotal ({cart.items.reduce((a, c) => a + c.qty, 0)}):
+              {formatCurrency(cart.itemsPrice)}
+            </div>
+            <Button
+              onClick={() =>
+                startTransition(() => router.push('/shipping-address'))
+              }
+              className='w-full'
+              disabled={isPending}
+            >
+              {isPending ? (
+                <Loader className='h-4 w-4 animate-spin' />
+              ) : (
+                <ArrowRight className='h-4 w-4' />
+              )}
+              Proceed to Checkout
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     </>
   );

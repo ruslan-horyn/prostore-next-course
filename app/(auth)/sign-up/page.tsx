@@ -8,10 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { APP_NAME } from '@/lib/constants';
+import { envs } from '@/lib/constants';
 import { auth } from 'auth';
 import { redirect } from 'next/navigation';
 import { SignUpForm } from '@/components/form/sign-up-form';
+
+const { APP_NAME } = envs;
 
 export const metadata: Metadata = {
   title: 'Sign Up',
