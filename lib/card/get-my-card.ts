@@ -4,14 +4,14 @@ import { Cart } from '@/types/cart';
 
 import { prisma } from '@/lib/prisma';
 import { convertToPlainObject } from '@/lib/utils';
+import { getSessionCartId } from '../cookies/get-session-car-id';
+import { auth } from '@/auth';
 
-export const getMyCard = async ({
-  userId,
-  sessionCartId,
-}: {
-  userId?: string;
-  sessionCartId?: string;
-}) => {
+export const getMyCard = async () => {
+  const sessionCartId = await getSessionCartId();
+  const session = await auth();
+  const userId = session?.user?.id;
+
   const card = await prisma.cart.findFirst({
     where: userId ? { userId } : { sessionCartId },
   });

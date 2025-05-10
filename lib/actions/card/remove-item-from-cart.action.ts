@@ -1,19 +1,14 @@
-import { getMyCard } from '@/lib/card/get-my-card';
-import { getSessionCartId } from '../../cookies/get-session-car-id';
-import { prisma } from '../../prisma';
-import { auth } from '@/auth';
+'use server';
 import { calculateCartPrise } from '@/lib/card';
+import { getMyCard } from '@/lib/card/get-my-card';
 import { formatError } from '@/lib/error-handlers';
 import { revalidatePath } from 'next/cache';
+import { prisma } from '../../prisma';
 
 export const removeItemFromCart = async (productId: string) => {
   try {
-    const sessionCartId = await getSessionCartId();
-    const session = await auth();
-    const userId = session?.user?.id;
-
     const [card, product] = await Promise.all([
-      getMyCard({ userId, sessionCartId }),
+      getMyCard(),
       prisma.product.findFirstOrThrow({
         where: {
           id: productId,

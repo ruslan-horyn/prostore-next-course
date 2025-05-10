@@ -82,7 +82,7 @@ export const addItemToCart = async (data: CartItem) => {
     const userId = session?.user?.id;
 
     const [card, product] = await Promise.all([
-      getMyCard({ userId, sessionCartId }),
+      getMyCard(),
       prisma.product.findFirstOrThrow({
         where: {
           id: item.productId,

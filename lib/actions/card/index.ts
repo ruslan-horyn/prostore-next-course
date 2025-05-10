@@ -1,2 +1,2 @@
 export * from './add-item-to-cart.actions';
-export * from './remove-item-fro-cart.action';
+export * from './remove-item-from-cart.action';
