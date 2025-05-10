@@ -16,6 +16,8 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { type SubmitHandler } from 'react-hook-form';
 import { useShippingAddressForm } from './useShippingAddressForm';
+import { updateUserAddress } from '@/lib/actions/user.actions';
+import { toast } from 'sonner';
 
 export const ShippingAddressForm = ({
   address,
@@ -27,8 +29,18 @@ export const ShippingAddressForm = ({
 
   const form = useShippingAddressForm({ address });
 
-  const onSubmit: SubmitHandler<ShippingAddress> = (data) => {
-    console.log(data);
+  const onSubmit: SubmitHandler<ShippingAddress> = async (data) => {
+    startTransition(async () => {
+      const { success, message } = await updateUserAddress(data);
+
+      if (!success) {
+        toast.error(message);
+        return;
+      }
+
+      toast.success(message);
+      router.push('/payment-method');
+    });
   };
 
   return (

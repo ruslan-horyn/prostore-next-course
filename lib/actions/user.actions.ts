@@ -1,12 +1,17 @@
 'use server';
 
-import { signIn, signOut as signOutAuth } from 'auth';
+import { auth, signIn, signOut as signOutAuth } from 'auth';
 
 import { prisma } from '@/lib/prisma';
+import { ShippingAddress } from '@/types/shipping-address';
 import { hashSync } from 'bcrypt-ts-edge';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { formatError } from '../error-handlers';
-import { signInFormSchema, signUpFormSchema } from '../validators';
+import {
+  shippingAddressSchema,
+  signInFormSchema,
+  signUpFormSchema,
+} from '../validators';
 
 export async function signInWithCredentials(
   _prevState: unknown,
@@ -82,3 +87,30 @@ export async function getUserById(id: string) {
 
   return user;
 }
+
+export const updateUserAddress = async (data: ShippingAddress) => {
+  try {
+    const address = shippingAddressSchema.parse(data);
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    const currentUser = await prisma.user.findFirst({
+      where: { id: userId },
+    });
+
+    if (!currentUser) throw new Error('User not found');
+    // TODO: If user is not logged in, add address to the cart
+
+    await prisma.user.update({
+      where: { id: currentUser.id },
+      data: { address },
+    });
+
+    return {
+      success: true,
+      message: 'Address added successfully',
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+};
