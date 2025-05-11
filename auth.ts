@@ -6,11 +6,13 @@ import type { PrismaClient } from '@prisma/client';
 import { compareSync } from 'bcrypt-ts-edge';
 import { z } from 'zod';
 import { authConfig } from './auth.config';
+import { cookies } from 'next/headers';
+import { cookieNames } from './lib/constants';
 
 export const config = {
   pages: {
-    signIn: '/auth/sign-in',
-    error: '/auth/sign-in',
+    signIn: '/sign-in',
+    error: '/sign-in',
   },
   session: {
     strategy: 'jwt',
@@ -71,6 +73,7 @@ export const config = {
       }
       const { id, email, name = 'NO_NAME', role } = user;
 
+      token.id = id;
       token.role = role;
       if (name === 'NO_NAME') {
         const [name] = email.split('@');
@@ -80,6 +83,32 @@ export const config = {
           where: { id },
           data: { name },
         });
+      }
+
+      if (trigger === 'signIn' || trigger === 'signUp') {
+        const cookieStore = await cookies();
+        const sessionCartId = cookieStore.get(cookieNames.sessionCartId)?.value;
+
+        if (sessionCartId) {
+          const cart = await prisma.cart.findFirst({
+            where: { sessionCartId },
+          });
+
+          if (cart) {
+            await prisma.cart.deleteMany({
+              where: {
+                userId: id,
+              },
+            });
+
+            await prisma.cart.update({
+              where: { id: cart.id },
+              data: {
+                userId: id,
+              },
+            });
+          }
+        }
       }
 
       if (session?.user.name && trigger === 'update') {
