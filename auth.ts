@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { authConfig } from './auth.config';
 import { cookies } from 'next/headers';
 import { cookieNames } from './lib/constants';
+import { Cart } from './types/cart';
 
 export const config = {
   pages: {
@@ -85,34 +86,59 @@ export const config = {
         });
       }
 
+      if (session?.user.name && trigger === 'update') {
+        token.name = session.user.name;
+      }
+
       if (trigger === 'signIn' || trigger === 'signUp') {
         const cookieStore = await cookies();
         const sessionCartId = cookieStore.get(cookieNames.sessionCartId)?.value;
 
-        if (sessionCartId) {
-          const cart = await prisma.cart.findFirst({
-            where: { sessionCartId },
-          });
+        if (!sessionCartId) {
+          return token;
+        }
 
-          if (cart) {
+        const [sessionCart, userCart] = (await Promise.all([
+          prisma.cart.findFirst({
+            where: { sessionCartId },
+          }),
+          prisma.cart.findFirst({
+            where: {
+              userId: id,
+            },
+          }),
+        ])) as [Cart | null, Cart | null];
+
+        if (!sessionCart) {
+          return token;
+        }
+
+        if (sessionCart.id === userCart?.id) {
+          await prisma.cart.update({
+            where: { id: userCart.id },
+            data: {
+              ...sessionCart,
+              userId: id,
+            },
+          });
+        }
+
+        if (sessionCart.id !== userCart?.id) {
+          if (userCart) {
             await prisma.cart.deleteMany({
               where: {
                 userId: id,
               },
             });
-
-            await prisma.cart.update({
-              where: { id: cart.id },
-              data: {
-                userId: id,
-              },
-            });
           }
-        }
-      }
 
-      if (session?.user.name && trigger === 'update') {
-        token.name = session.user.name;
+          await prisma.cart.update({
+            where: { id: sessionCart.id },
+            data: {
+              userId: id,
+            },
+          });
+        }
       }
 
       return token;
