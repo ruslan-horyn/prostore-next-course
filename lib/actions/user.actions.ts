@@ -11,7 +11,9 @@ import {
   shippingAddressSchema,
   signInFormSchema,
   signUpFormSchema,
+  paymentMethodSchema,
 } from '../validators';
+import type { PaymentMethod } from '@/types/payment-method';
 
 export async function signInWithCredentials(
   _prevState: unknown,
@@ -109,6 +111,32 @@ export const updateUserAddress = async (data: ShippingAddress) => {
     return {
       success: true,
       message: 'Address added successfully',
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+};
+
+export const updateUserPaymentMethod = async (data: PaymentMethod) => {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    const currentUser = await prisma.user.findFirst({
+      where: { id: userId },
+    });
+    if (!currentUser) throw new Error('User not found');
+
+    const paymentMethod = paymentMethodSchema.parse(data);
+
+    await prisma.user.update({
+      where: { id: currentUser.id },
+      data: { paymentMethod: paymentMethod.type },
+    });
+
+    return {
+      success: true,
+      message: 'User updated successfully',
     };
   } catch (error) {
     return { success: false, message: formatError(error) };

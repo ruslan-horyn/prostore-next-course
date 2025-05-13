@@ -1,3 +1,7 @@
+const PAYMENT_METHODS = process.env.PAYMENT_METHODS
+  ? process.env.PAYMENT_METHODS.split(', ')
+  : ['PayPal', 'Stripe', 'CashOnDelivery'];
+
 export const envs = {
   APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'Prostore',
   APP_DESCRIPTION:
@@ -7,6 +11,8 @@ export const envs = {
   API_URL: process.env.API_URL || 'http://localhost:3000/api',
   LATEST_PRODUCTS_LIMIT: Number(process.env.LATEST_PRODUCTS_LIMIT || 4),
   SCHEMA_NAME: process.env.SCHEMA_NAME || 'prostore-next-course',
+  PAYMENT_METHODS,
+  DEFAULT_PAYMENT_METHOD: process.env.DEFAULT_PAYMENT_METHOD || 'PayPal',
 };
 
 export const PRICE_FOR_FREE_SHIPPING = 100;
