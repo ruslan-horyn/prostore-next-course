@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { formatNumberWithDecimals } from './format-number';
 import { envs } from './constants';
 
-export const currencySchema = z
+export const currency = z
   .string()
   .refine(
     (val) => /^\d+(\.\d{2})?$/.test(formatNumberWithDecimals(Number(val))),
@@ -22,7 +22,7 @@ export const insertProjectSchema = z.object({
   isFeatured: z.boolean().optional(),
   banner: z.string().optional(),
   numReviews: z.coerce.number().optional(),
-  price: currencySchema,
+  price: currency,
 });
 
 export const signInFormSchema = z.object({
@@ -50,16 +50,16 @@ export const cartItemSchema = z.object({
   slug: z.string().min(1, 'Slug is required'),
   qty: z.number().int().nonnegative('Quantity must be a non-negative number'),
   image: z.string().min(1, 'Image is required'),
-  price: currencySchema,
+  price: currency,
 });
 
 export const insertCartSchema = z.object({
   id: z.string().uuid(),
   items: z.array(cartItemSchema),
-  itemsPrice: currencySchema,
-  totalPrice: currencySchema,
-  shippingPrice: currencySchema,
-  taxPrice: currencySchema,
+  itemsPrice: currency,
+  totalPrice: currency,
+  shippingPrice: currency,
+  taxPrice: currency,
   sessionCartId: z.string().min(1, 'Session cart id is required'),
   userId: z.string().optional().nullable(),
 });
@@ -82,3 +82,26 @@ export const paymentMethodSchema = z
     path: ['type'],
     message: 'Invalid payment method',
   });
+
+export const insertOrderSchema = z.object({
+  userId: z.string().min(1, 'User is required'),
+  itemsPrice: currency,
+  shippingPrice: currency,
+  taxPrice: currency,
+  totalPrice: currency,
+  paymentMethod: z
+    .string()
+    .refine((data) => envs.PAYMENT_METHODS.includes(data), {
+      message: 'Invalid payment method',
+    }),
+  shippingAddress: shippingAddressSchema,
+});
+
+export const insertOrderItemSchema = z.object({
+  productId: z.string(),
+  slug: z.string(),
+  image: z.string(),
+  name: z.string(),
+  price: currency,
+  qty: z.number(),
+});
