@@ -58,7 +58,7 @@ export const createOrder = async () => {
         data: cart.items.map((item: CartItem) => ({
           ...item,
           orderId: insertedOrder.id,
-          gty: item.qty,
+          qty: item.qty,
         })),
       });
 
