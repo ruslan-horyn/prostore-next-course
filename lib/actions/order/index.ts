@@ -8,6 +8,8 @@ import { insertOrderSchema } from '@/lib/validators';
 import { CartItem } from '@/types/cart';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { getUserById } from '../user.actions';
+import { convertToPlainObject } from '@/lib/utils';
+import type { Order } from '@/types/order';
 
 export const createOrder = async () => {
   try {
@@ -58,7 +60,6 @@ export const createOrder = async () => {
         data: cart.items.map((item: CartItem) => ({
           ...item,
           orderId: insertedOrder.id,
-          qty: item.qty,
         })),
       });
 
@@ -88,3 +89,17 @@ export const createOrder = async () => {
     return { success: false, message: formatError(error) };
   }
 };
+
+export async function getOrderById(orderId: string) {
+  const data = await prisma.order.findFirst({
+    where: {
+      id: orderId,
+    },
+    include: {
+      orderItem: true,
+      user: { select: { name: true, email: true } },
+    },
+  });
+
+  return convertToPlainObject<Order>(data);
+}

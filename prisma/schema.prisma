@@ -32,7 +32,7 @@ model Product {
   createdAt   DateTime @default(now()) @db.Timestamp(6)
   updatedAt   DateTime @updatedAt @db.Timestamp(6)
 
-  OrderItem OrderItem[]
+  orderItem OrderItem[]
 }
 
 model User {
@@ -53,7 +53,7 @@ model User {
   session  Session[]
   cart     Cart[]
 
-  Order Order[]
+  order Order[]
 }
 
 model Account {
@@ -128,7 +128,7 @@ model Order {
   updatedAt       DateTime  @updatedAt @db.Timestamp(6)
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  OrderItem OrderItem[]
+  orderItem OrderItem[]
 }
 
 model OrderItem {
