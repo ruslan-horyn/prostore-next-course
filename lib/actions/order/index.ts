@@ -10,6 +10,7 @@ import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { getUserById } from '../user.actions';
 import { convertToPlainObject } from '@/lib/utils';
 import type { Order } from '@/types/order';
+import { paypal } from '@/lib/paypal';
 
 export const createOrder = async () => {
   try {
@@ -102,4 +103,41 @@ export async function getOrderById(orderId: string) {
   });
 
   return convertToPlainObject<Order>(data);
+}
+
+export async function createPayPalOrder(orderId: string) {
+  try {
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+      },
+    });
+    if (order) {
+      const paypalOrder = await paypal.createOrder(Number(order.totalPrice));
+
+      await prisma.order.update({
+        where: {
+          id: orderId,
+        },
+        data: {
+          paymentResult: {
+            id: paypalOrder.id,
+            email_address: '',
+            status: '',
+            pricePaid: '0',
+          },
+        },
+      });
+
+      return {
+        success: true,
+        message: 'PayPal order created successfully',
+        data: paypalOrder.id,
+      };
+    } else {
+      throw new Error('Order not found');
+    }
+  } catch (err) {
+    return { success: false, message: formatError(err) };
+  }
 }
