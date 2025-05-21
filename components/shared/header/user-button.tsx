@@ -52,6 +52,17 @@ export const UserButton = async () => {
             </div>
           </DropdownMenuLabel>
 
+          <DropdownMenuItem>
+            <Link className='w-full' href='/user/profile'>
+              User Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link className='w-full' href='/user/orders'>
+              Order History
+            </Link>
+          </DropdownMenuItem>
+
           <DropdownMenuItem className='mb-1 p-0'>
             <form action={signOut} className='w-full'>
               <Button
