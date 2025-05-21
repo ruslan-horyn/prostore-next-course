@@ -1,7 +1,9 @@
+import { Pagination } from '@/components/shared/pagination';
 import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -67,6 +69,17 @@ const OrdersPage = async (props: {
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={100}>
+                <Pagination
+                  page={Number(page) || 1}
+                  totalPages={orders.totalPages}
+                  className='w-full justify-end'
+                />
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </div>
     </div>
