@@ -70,3 +70,14 @@ export const formatDateTime = (dateString: Date) => {
     timeOnly: formattedTime,
   };
 };
+
+export const calculateTotalPages = async ({
+  count,
+  limit,
+}: {
+  count: number;
+  limit: number;
+}) => {
+  if (count <= 0) return 1;
+  return Math.ceil(count / limit);
+};

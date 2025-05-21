@@ -19,6 +19,8 @@ export const PRICE_FOR_FREE_SHIPPING = 100;
 export const TAX_RATE = 0.15;
 export const SHIPPING_PRICE = 10;
 
+export const PAGE_SIZE = Number(process.env.PAGE_SIZE) || 2;
+
 export const formFieldsDefaultValues = {
   signIn: {
     email: '',

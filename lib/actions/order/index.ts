@@ -5,7 +5,7 @@ import { getMyCart } from '@/lib/cart/get-my-cart';
 import { formatError } from '@/lib/error-handlers';
 import { paypal } from '@/lib/paypal';
 import { prisma } from '@/lib/prisma';
-import { convertToPlainObject } from '@/lib/utils';
+import { calculateTotalPages, convertToPlainObject } from '@/lib/utils';
 import { insertOrderSchema } from '@/lib/validators';
 import { CartItem } from '@/types/cart';
 import type { Order } from '@/types/order';
@@ -13,6 +13,7 @@ import { revalidatePath } from 'next/cache';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { getUserById } from '../user.actions';
 import { PaymentResult } from '@/types/paypal';
+import { PAGE_SIZE } from '@/lib/constants';
 
 export const createOrder = async () => {
   try {
@@ -234,4 +235,41 @@ export const approvePayPalOrder = async (
   } catch (err) {
     return { success: false, message: formatError(err) };
   }
+};
+
+export const getMyOrders = async ({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) => {
+  const session = await auth();
+  if (!session?.user) throw new Error('User is not authenticated');
+
+  const userOrdersQuery = prisma.order.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    take: limit,
+    skip: (page - 1) * limit,
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+
+  const totalUserOrderQuery = prisma.order.count({
+    where: {
+      userId: session.user.id,
+    },
+  });
+
+  const [userOrders, totalUserOrderCount] = await Promise.all([
+    userOrdersQuery,
+    totalUserOrderQuery,
+  ]);
+  return {
+    data: userOrders,
+    totalPages: calculateTotalPages({ count: totalUserOrderCount, limit }),
+  };
 };
