@@ -7,8 +7,6 @@ import { compareSync } from 'bcrypt-ts-edge';
 import { z } from 'zod';
 import { authConfig } from './auth.config';
 import { cookies } from 'next/headers';
-import { cookieNames } from './lib/constants';
-import { Cart } from './types/cart';
 
 export const config = {
   pages: {
@@ -69,93 +67,60 @@ export const config = {
   callbacks: {
     ...authConfig.callbacks,
     async jwt({ token, user, session, trigger }) {
-      if (!user || !user.email) {
-        return token;
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+
+        // If user has no name then use the email
+        if (user.name === 'NO_NAME') {
+          token.name = user.email!.split('@')[0];
+
+          // Update database to reflect the token name
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: token.name },
+          });
+        }
+
+        if (trigger === 'signIn' || trigger === 'signUp') {
+          const cookiesObject = await cookies();
+          const sessionCartId = cookiesObject.get('sessionCartId')?.value;
+
+          if (sessionCartId) {
+            const sessionCart = await prisma.cart.findFirst({
+              where: { sessionCartId },
+            });
+
+            if (sessionCart) {
+              // Delete current user cart
+              await prisma.cart.deleteMany({
+                where: { userId: user.id },
+              });
+
+              // Assign new cart
+              await prisma.cart.update({
+                where: { id: sessionCart.id },
+                data: { userId: user.id },
+              });
+            }
+          }
+        }
       }
-      const { id, email, name = 'NO_NAME', role } = user;
 
-      token.id = id;
-      token.role = role;
-      if (name === 'NO_NAME') {
-        const [name] = email.split('@');
-        token.name = name;
-
-        await prisma.user.update({
-          where: { id },
-          data: { name },
-        });
-      }
-
+      // Handle session updates
       if (session?.user.name && trigger === 'update') {
         token.name = session.user.name;
-      }
-
-      if (trigger === 'signIn' || trigger === 'signUp') {
-        const cookieStore = await cookies();
-        const sessionCartId = cookieStore.get(cookieNames.sessionCartId)?.value;
-
-        if (!sessionCartId) {
-          return token;
-        }
-
-        const [sessionCart, userCart] = (await Promise.all([
-          prisma.cart.findFirst({
-            where: { sessionCartId },
-          }),
-          prisma.cart.findFirst({
-            where: {
-              userId: id,
-            },
-          }),
-        ])) as [Cart | null, Cart | null];
-
-        if (!sessionCart) {
-          return token;
-        }
-
-        if (sessionCart.id === userCart?.id) {
-          await prisma.cart.update({
-            where: { id: userCart.id },
-            data: {
-              ...sessionCart,
-              userId: id,
-            },
-          });
-        }
-
-        if (sessionCart.id !== userCart?.id) {
-          if (userCart) {
-            await prisma.cart.deleteMany({
-              where: {
-                userId: id,
-              },
-            });
-          }
-
-          await prisma.cart.update({
-            where: { id: sessionCart.id },
-            data: {
-              userId: id,
-            },
-          });
-        }
       }
 
       return token;
     },
     async session({ session, user, trigger, token }) {
-      if (token.sub) {
-        session.user.id = token.sub;
-      }
+      // Set the user ID from the token
+      session.user.id = token.sub ?? '';
+      session.user.role = token.role;
+      session.user.name = token.name;
 
-      if (token.role) {
-        session.user.role = token.role;
-      }
-
-      if (token.name) {
-        session.user.name = token.name;
-      }
-
+      // If there is an update, set the user name
       if (trigger === 'update') {
         session.user.name = user.name;
       }

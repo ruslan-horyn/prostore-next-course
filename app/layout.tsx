@@ -41,7 +41,11 @@ export default function RootLayout({
           themes={['dark', 'light']}
         >
           {children}
-          <Toaster visibleToasts={3} swipeDirections={['right', 'left']} />
+          <Toaster
+            visibleToasts={3}
+            swipeDirections={['right', 'left']}
+            duration={5000}
+          />
         </ThemeProvider>
       </body>
     </html>

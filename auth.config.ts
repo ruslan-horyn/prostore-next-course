@@ -15,9 +15,16 @@ export const authConfig = {
   providers: [],
   callbacks: {
     authorized({ request, auth }) {
-      const { pathname } = request.nextUrl;
+      const { pathname, origin } = request.nextUrl;
 
-      if (!auth && protectedPaths.some((p) => p.test(pathname))) return false;
+      const isProtectedPath = protectedPaths.some((p) => p.test(pathname));
+
+      if (!auth && isProtectedPath) {
+        const redirectUrl = new URL('/sign-in', origin);
+
+        redirectUrl.searchParams.set('callbackUrl', pathname);
+        return NextResponse.redirect(redirectUrl);
+      }
 
       if (!request.cookies.get('sessionCartId')) {
         const sessionCartId = crypto.randomUUID();

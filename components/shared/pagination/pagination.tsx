@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { cn, formUrlQuery } from '@/lib/utils';
 
 type PaginationProps = React.ComponentProps<'div'> & {
-  page: number | string;
-  totalPages: number;
+  page: number | undefined;
+  totalPages: number | undefined;
   urlParamName?: string;
 };
 
 export const Pagination = ({
-  page,
-  totalPages,
+  page = 1,
+  totalPages = 1,
   urlParamName,
   className,
   ...props
@@ -30,6 +30,8 @@ export const Pagination = ({
 
     router.push(newUrl, { scroll: false });
   };
+
+  if (totalPages <= 1) return null;
 
   return (
     <div {...props} className={cn('flex gap-2', className)}>
