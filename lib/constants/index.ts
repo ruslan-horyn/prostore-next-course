@@ -15,6 +15,11 @@ export const envs = {
   DEFAULT_PAYMENT_METHOD: process.env.DEFAULT_PAYMENT_METHOD || 'PayPal',
 };
 
+export const USER_ROLES = {
+  ADMIN: 'admin',
+  USER: 'user',
+} as const;
+
 export const PRICE_FOR_FREE_SHIPPING = 100;
 export const TAX_RATE = 0.15;
 export const SHIPPING_PRICE = 10;

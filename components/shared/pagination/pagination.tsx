@@ -36,7 +36,7 @@ export const Pagination = ({
   return (
     <div {...props} className={cn('flex gap-2', className)}>
       <Button
-        size='lg'
+        size='sm'
         variant='outline'
         className='w-28'
         onClick={() => onClick('prev')}
@@ -45,7 +45,7 @@ export const Pagination = ({
         Previous
       </Button>
       <Button
-        size='lg'
+        size='sm'
         variant='outline'
         className='w-28'
         onClick={() => onClick('next')}

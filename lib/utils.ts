@@ -54,15 +54,15 @@ export const formatDateTime = (dateString: Date) => {
     hour12: false, // use 12-hour clock (true) or 24-hour clock (false)
   };
   const formattedDateTime: string = new Date(dateString).toLocaleString(
-    'en-US',
+    'en-GB',
     dateTimeOptions
   );
   const formattedDate: string = new Date(dateString).toLocaleString(
-    'en-US',
+    'en-GB',
     dateOptions
   );
   const formattedTime: string = new Date(dateString).toLocaleString(
-    'en-US',
+    'en-GB',
     timeOptions
   );
   return {
@@ -71,6 +71,23 @@ export const formatDateTime = (dateString: Date) => {
     timeOnly: formattedTime,
   };
 };
+
+export const formatChartDate = (
+  date: Date,
+  options: Intl.DateTimeFormatOptions = {}
+) => {
+  const formatChartDateFormatter = new Intl.DateTimeFormat('en-GB', {
+    year: '2-digit',
+    month: '2-digit',
+    ...options,
+  });
+  return formatChartDateFormatter.format(date);
+};
+
+const NUMBER_FORMATTER = new Intl.NumberFormat('en-US');
+export function formatNumber(number: number) {
+  return NUMBER_FORMATTER.format(number);
+}
 
 export const calculateTotalPages = ({
   count,
