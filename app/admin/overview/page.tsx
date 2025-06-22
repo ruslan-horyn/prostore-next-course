@@ -15,6 +15,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Charts from './chart';
 
 export const metadata: Metadata = {
   title: 'Admin Overview',
@@ -79,7 +80,13 @@ const AdminOverviewPage = async () => {
           <CardHeader>
             <CardTitle>Overview</CardTitle>
           </CardHeader>
-          <CardContent className='pl-2'>{/* CHART */}</CardContent>
+          <CardContent className='pl-2'>
+            <Charts
+              data={{
+                salesData: summary.salesData,
+              }}
+            />
+          </CardContent>
         </Card>
         <Card className='col-span-3'>
           <CardHeader>
