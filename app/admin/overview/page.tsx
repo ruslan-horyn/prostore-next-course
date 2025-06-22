@@ -1,4 +1,3 @@
-import { auth } from '@/auth';
 import {
   Table,
   TableBody,
@@ -8,13 +7,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { getOrderSummary } from '@/lib/actions/order';
-import { USER_ROLES } from '@/lib/constants';
 import { formatCurrency, formatDateTime, formatNumber } from '@/lib/utils';
 import { BadgeDollarSign, Barcode, CreditCard, Users } from 'lucide-react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { requiredAdmin } from '@/lib/auth-guard';
 import Charts from './chart';
 
 export const metadata: Metadata = {
@@ -22,11 +21,7 @@ export const metadata: Metadata = {
 };
 
 const AdminOverviewPage = async () => {
-  const session = await auth();
-
-  if (session?.user?.role && session.user.role !== USER_ROLES.ADMIN) {
-    throw new Error('User is not authorized');
-  }
+  await requiredAdmin();
 
   const summary = await getOrderSummary();
 

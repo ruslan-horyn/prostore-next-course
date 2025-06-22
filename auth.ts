@@ -70,16 +70,18 @@ export const config = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.email = user.email;
 
         // If user has no name then use the email
         if (user.name === 'NO_NAME') {
-          token.name = user.email!.split('@')[0];
-
-          // Update database to reflect the token name
+          const name = user.email!.split('@')[0];
+          token.name = name;
           await prisma.user.update({
             where: { id: user.id },
-            data: { name: token.name },
+            data: { name },
           });
+        } else {
+          token.name = user.name;
         }
 
         if (trigger === 'signIn' || trigger === 'signUp') {
@@ -107,23 +109,15 @@ export const config = {
         }
       }
 
-      // Handle session updates
-      if (session?.user.name && trigger === 'update') {
-        token.name = session.user.name;
-      }
+      if (trigger === 'update') token.name = session.user.name;
 
       return token;
     },
-    async session({ session, user, trigger, token }) {
-      // Set the user ID from the token
-      session.user.id = token.sub ?? '';
-      session.user.role = token.role;
+    async session({ session, token }) {
+      session.user.id = token.id as string;
+      session.user.role = token.role as string;
       session.user.name = token.name;
-
-      // If there is an update, set the user name
-      if (trigger === 'update') {
-        session.user.name = user.name;
-      }
+      session.user.email = token.email as string;
 
       return session;
     },
