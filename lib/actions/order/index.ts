@@ -340,3 +340,51 @@ export const getOrderSummary = async () => {
     latestSales,
   };
 };
+
+export async function getAllOrders({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const dataPromise = prisma.order.findMany({
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: (page - 1) * limit,
+    include: { user: { select: { name: true } } },
+  });
+
+  const dataCountPromise = prisma.order.count();
+
+  const [data, dataCount] = await Promise.all([dataPromise, dataCountPromise]);
+
+  return {
+    data,
+    totalPages: calculateTotalPages({ count: dataCount, limit }),
+  };
+}
+
+export const deleteOrder = async (
+  orderId: string
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    await prisma.order.delete({
+      where: {
+        id: orderId,
+      },
+    });
+
+    revalidatePath(`/order/${orderId}`);
+
+    return {
+      success: true,
+      message: 'Order deleted successfully',
+    };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
+};

@@ -7,7 +7,6 @@ const Charts = ({
 }: {
   data: { salesData: { month: string; totalSales: number }[] };
 }) => {
-  console.log('🚀 ~ salesData:', salesData);
   return (
     <ResponsiveContainer width='100%' height={350}>
       <BarChart data={salesData}>
