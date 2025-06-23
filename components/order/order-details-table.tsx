@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Table,
@@ -10,7 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { approvePayPalOrder, createPayPalOrder } from '@/lib/actions/order';
+import {
+  approvePayPalOrder,
+  createPayPalOrder,
+  deliverOrder,
+  updateOrderToPaidByCOD,
+} from '@/lib/actions/order';
 import { formatCurrency, formatDateTime, formatId } from '@/lib/utils';
 import { Order } from '@/types/order';
 import {
@@ -20,7 +26,48 @@ import {
 } from '@paypal/react-paypal-js';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTransition } from 'react';
 import { toast } from 'sonner';
+
+const MarkAsPaidButton = ({ orderId }: { orderId: string }) => {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <Button
+      type='button'
+      disabled={isPending}
+      onClick={() =>
+        startTransition(async () => {
+          const res = await updateOrderToPaidByCOD(orderId);
+          const currentToast = res.success ? toast.success : toast.error;
+          currentToast(res.message);
+        })
+      }
+    >
+      {isPending ? 'Processing...' : 'Mark As Paid'}
+    </Button>
+  );
+};
+
+const MarkAsDeliveredButton = ({ orderId }: { orderId: string }) => {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <Button
+      type='button'
+      disabled={isPending}
+      onClick={() =>
+        startTransition(async () => {
+          const res = await deliverOrder(orderId);
+          const currentToast = res.success ? toast.success : toast.error;
+          currentToast(res.message);
+        })
+      }
+    >
+      {isPending ? 'Processing...' : 'Mark As Delivered'}
+    </Button>
+  );
+};
 
 function PrintLoadingState() {
   const [{ isPending, isRejected }] = usePayPalScriptReducer();
@@ -36,9 +83,11 @@ function PrintLoadingState() {
 export const OrderDetailsTable = ({
   order,
   paypalClientId,
+  isAdmin,
 }: {
   order: Order;
   paypalClientId: string;
+  isAdmin: boolean;
 }) => {
   const {
     shippingAddress,
@@ -177,6 +226,12 @@ export const OrderDetailsTable = ({
                     />
                   </PayPalScriptProvider>
                 </div>
+              )}
+              {isAdmin && !isPaid && paymentMethod === 'CashOnDelivery' && (
+                <MarkAsPaidButton orderId={order.id} />
+              )}
+              {isAdmin && isPaid && !isDelivered && (
+                <MarkAsDeliveredButton orderId={order.id} />
               )}
             </CardContent>
           </Card>

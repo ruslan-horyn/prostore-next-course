@@ -61,14 +61,14 @@ export const createOrder = async () => {
 
     const insertedOrderId = await prisma.$transaction(async (tx) => {
       const insertedOrder = await tx.order.create({ data: order });
-      await tx.orderItem.createMany({
+      const orderItemsPromise = tx.orderItem.createMany({
         data: cart.items.map((item: CartItem) => ({
           ...item,
           orderId: insertedOrder.id,
         })),
       });
 
-      await tx.cart.update({
+      const cartUpdatePromise = tx.cart.update({
         where: { id: cart.id },
         data: {
           items: [],
@@ -78,6 +78,8 @@ export const createOrder = async () => {
           itemsPrice: 0,
         },
       });
+
+      await Promise.all([orderItemsPromise, cartUpdatePromise]);
 
       return insertedOrder.id;
     });
@@ -151,7 +153,7 @@ export const updateOrderToPaid = async ({
   paymentResult,
 }: {
   orderId: string;
-  paymentResult: PaymentResult;
+  paymentResult?: PaymentResult;
 }) => {
   const order = await prisma.order.findFirst({
     where: {
@@ -388,3 +390,40 @@ export const deleteOrder = async (
     return { success: false, message: formatError(error) };
   }
 };
+
+export async function updateOrderToPaidByCOD(orderId: string) {
+  try {
+    await updateOrderToPaid({ orderId });
+    revalidatePath(`/order/${orderId}`);
+    return { success: true, message: 'Order paid successfully' };
+  } catch (err) {
+    return { success: false, message: formatError(err) };
+  }
+}
+
+export async function deliverOrder(orderId: string) {
+  try {
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+      },
+    });
+
+    if (!order) throw new Error('Order not found');
+    if (!order.isPaid) throw new Error('Order is not paid');
+
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        isDelivered: true,
+        deliveredAt: new Date(),
+      },
+    });
+
+    revalidatePath(`/order/${orderId}`);
+
+    return { success: true, message: 'Order delivered successfully' };
+  } catch (err) {
+    return { success: false, message: formatError(err) };
+  }
+}
