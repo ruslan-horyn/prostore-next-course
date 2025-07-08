@@ -39,7 +39,7 @@ export default function DeleteDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger>
+      <AlertDialogTrigger asChild>
         <Button variant='destructive' size='sm' disabled={isPending}>
           {isPending ? 'Deleting...' : 'Delete'}
         </Button>
