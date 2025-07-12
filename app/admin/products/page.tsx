@@ -1,8 +1,7 @@
-import { getAllProducts, deleteProduct } from '@/lib/actions/product.actions';
-import { requiredAdmin } from '@/lib/auth-guard';
-import Link from 'next/link';
-import { formatCurrency, formatId } from '@/lib/utils';
+import DeleteDialog from '@/components/shared/delete-dialog';
+import { Pagination } from '@/components/shared/pagination';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -12,8 +11,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Pagination } from '@/components/shared/pagination';
-import DeleteDialog from '@/components/shared/delete-dialog';
+import { deleteProduct, getAllProducts } from '@/lib/actions/product.actions';
+import { requiredAdmin } from '@/lib/auth-guard';
+import { formatCurrency, formatId } from '@/lib/utils';
+import { PlusIcon } from 'lucide-react';
+import Link from 'next/link';
 
 const AdminProductsPage = async (props: {
   searchParams: Promise<{
@@ -34,6 +36,24 @@ const AdminProductsPage = async (props: {
     page,
     category,
   });
+
+  if (!products || products.length === 0) {
+    return (
+      <Card className=''>
+        <CardContent className='flex-center text-center'>
+          <CardTitle>No products found</CardTitle>
+        </CardContent>
+        <CardFooter className='flex-center'>
+          <Button variant='outline' asChild>
+            <Link href='/admin/products/create' className='flex-center gap-2'>
+              <PlusIcon className='h-4 w-4' />
+              Create Product
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    );
+  }
 
   return (
     <div className='space-y-2'>

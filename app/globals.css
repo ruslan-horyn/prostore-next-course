@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 
+
 @plugin 'tailwindcss-animate';
 
 @custom-variant dark (&:is(.dark *));
@@ -53,6 +54,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
   *,
   ::after,
   ::before,
@@ -124,6 +126,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -156,16 +159,8 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
-}
-
-/* Uploadthing button text override */
-html.dark .upload-field .text-white {
-  color: #ffffff !important;
-}
-
-.upload-field .text-white {
-  color: #000 !important;
 }

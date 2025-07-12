@@ -1,7 +1,7 @@
-import { insertProjectSchema } from "@/lib/validators";
-import { z } from "zod";
+import { insertProductSchema } from '@/lib/validators';
+import { z } from 'zod';
 
-export interface Product extends z.infer<typeof insertProjectSchema> {
+export interface Product extends z.infer<typeof insertProductSchema> {
   id: string;
   rating: string;
   createdAt: Date;
