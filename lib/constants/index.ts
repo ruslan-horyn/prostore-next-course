@@ -64,5 +64,5 @@ export const productDefaultValues: z.infer<typeof insertProductSchema> = {
   stock: 0,
   numReviews: 0,
   isFeatured: false,
-  banner: undefined,
+  banner: null,
 };

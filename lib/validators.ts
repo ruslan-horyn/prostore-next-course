@@ -9,25 +9,41 @@ export const currency = z
     'Price must be a number with two decimal places'
   );
 
-export const insertProductSchema = z.object({
-  name: z.string().min(3, 'Name must be at least 3 characters long'),
-  slug: z.string().min(3, 'Slug must be at least 3 characters long'),
-  category: z.string().min(3, 'Category must be at least 3 characters long'),
-  brand: z.string().min(3, 'Brand must be at least 3 characters long'),
-  description: z
-    .string()
-    .min(3, 'Description must be at least 3 characters long'),
-  stock: z.coerce.number(),
-  images: z.array(z.string()).min(1, 'Product must have at least one image'),
-  isFeatured: z.boolean().optional(),
-  banner: z.string().optional(),
-  numReviews: z.coerce.number().optional(),
-  price: currency,
-});
+export const insertProductSchema = z
+  .object({
+    name: z.string().min(3, 'Name must be at least 3 characters long'),
+    slug: z.string().min(3, 'Slug must be at least 3 characters long'),
+    category: z.string().min(3, 'Category must be at least 3 characters long'),
+    brand: z.string().min(3, 'Brand must be at least 3 characters long'),
+    description: z
+      .string()
+      .min(3, 'Description must be at least 3 characters long'),
+    stock: z.coerce.number(),
+    images: z.array(z.string()).min(1, 'Product must have at least one image'),
+    isFeatured: z.boolean().optional(),
+    banner: z.string().nullable(),
+    numReviews: z.coerce.number().optional(),
+    price: currency,
+  })
+  .refine(
+    (data) => {
+      if (data.isFeatured && !data.banner) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Banner is required if it is featured',
+      path: ['banner'],
+    }
+  );
 
-export const updateProductSchema = insertProductSchema.extend({
-  id: z.string().min(1, 'Id is required'),
-});
+export const updateProductSchema = z.intersection(
+  insertProductSchema,
+  z.object({
+    id: z.string().min(1, 'Id is required'),
+  })
+);
 
 export const signInFormSchema = z.object({
   email: z.string().email('Invalid email address'),

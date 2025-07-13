@@ -24,36 +24,41 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { toast } from 'sonner';
-import {
-  ProductFormSchemaType,
-  ProductFormType,
-  useProductForm,
-} from './useProductForm';
+import { ProductFormSchemaType, useProductForm } from './useProductForm';
 
-export const ProductForm = ({
-  type,
-  product,
-  productId,
-}: {
-  type: ProductFormType;
-  product?: Product;
-  productId?: string;
-}) => {
+type CreateProductFormProps = {
+  type: 'Create';
+  product?: never;
+};
+
+type UpdateProductFormProps = {
+  type: 'Update';
+  product: Product;
+};
+
+type ProductFormProps = CreateProductFormProps | UpdateProductFormProps;
+export const ProductForm = ({ type, product }: ProductFormProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const form = useProductForm(type, product);
-  const banner = form.watch('banner');
+  const {
+    setValue,
+    getValues,
+    handleSubmit,
+    control,
+    formState: { isValid, isDirty },
+  } = form;
 
   const generateProductSlug = () => {
-    const name = form.getValues('name');
-    form.setValue('slug', generateSlug(name || ''));
+    const name = getValues('name');
+    setValue('slug', generateSlug(name || ''));
   };
 
   const onSubmit: SubmitHandler<ProductFormSchemaType> = async (data) => {
     startTransition(async () => {
       const action = type === 'Create' ? createProduct : updateProduct;
-      const res = await action({ ...data, id: productId || '' });
+      const res = await action({ ...data, id: product?.id || '' });
       if (!res.success) {
         toast.error(res.message);
       } else {
@@ -67,12 +72,12 @@ export const ProductForm = ({
     <Form {...form}>
       <form
         method='post'
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
         className='space-y-8'
       >
         <div className='flex flex-col gap-5 md:flex-row'>
           <FormField
-            control={form.control}
+            control={control}
             name='name'
             render={({ field }) => (
               <FormItem className='w-full'>
@@ -85,7 +90,7 @@ export const ProductForm = ({
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name='slug'
             render={({ field }) => (
               <FormItem className='w-full'>
@@ -110,7 +115,7 @@ export const ProductForm = ({
         </div>
         <div className='flex flex-col gap-5 md:flex-row'>
           <FormField
-            control={form.control}
+            control={control}
             name='category'
             render={({ field }) => (
               <FormItem className='w-full'>
@@ -123,7 +128,7 @@ export const ProductForm = ({
             )}
           />
           <FormField
-            control={form.control}
+            control={control}
             name='brand'
             render={({ field }) => (
               <FormItem className='w-full'>
@@ -138,7 +143,7 @@ export const ProductForm = ({
         </div>
         <div className='flex flex-col gap-5 md:flex-row'>
           <FormField
-            control={form.control}
+            control={control}
             name='price'
             render={({ field }) => (
               <FormItem className='w-full'>
@@ -152,7 +157,7 @@ export const ProductForm = ({
           />
           {/* Stock */}
           <FormField
-            control={form.control}
+            control={control}
             name='stock'
             render={({ field }) => (
               <FormItem className='w-full'>
@@ -171,7 +176,7 @@ export const ProductForm = ({
         </div>
         <div className='upload-field flex flex-col gap-5 md:flex-row'>
           <FormField
-            control={form.control}
+            control={control}
             name='images'
             render={({ field: { onChange, value: images } }) => (
               <FormItem className='w-full'>
@@ -231,58 +236,76 @@ export const ProductForm = ({
           <Card>
             <CardContent className='mt-2 space-y-2'>
               <FormField
-                control={form.control}
+                control={control}
                 name='isFeatured'
-                render={({ field: { onChange, value, ...field } }) => (
+                render={({
+                  field: { onChange, value: isFeaturedValue, ...field },
+                }) => (
                   <div>
-                    <FormItem className='flex items-center gap-2'>
+                    <FormItem className='flex-row'>
                       <FormControl>
                         <Checkbox
-                          checked={value}
+                          checked={isFeaturedValue}
                           onCheckedChange={onChange}
                           {...field}
                         />
                       </FormControl>
                       <FormLabel>Is Featured?</FormLabel>
                     </FormItem>
-                    {value && banner && (
-                      <div className='flex flex-col items-center'>
-                        <Image
-                          src={banner}
-                          alt='banner image'
-                          className='w-full rounded-sm object-cover object-center'
-                          width={1920}
-                          height={680}
-                        />
-                        <Button
-                          type='button'
-                          variant='link'
-                          size='icon'
-                          onClick={() => {
-                            form.setValue('banner', undefined);
-                          }}
-                        >
-                          Remove
-                        </Button>
-                      </div>
-                    )}
-                    {value && !banner && (
-                      <UploadButton
-                        endpoint='imageUploader'
-                        onClientUploadComplete={(res: { url: string }[]) => {
-                          form.setValue('banner', res[0].url);
-                        }}
-                        onUploadError={(error: Error) => {
-                          toast.error(`ERROR! ${error.message}`);
-                        }}
-                        appearance={{
-                          button: buttonVariants({
-                            variant: 'default',
-                          }),
-                          allowedContent: 'hidden',
-                        }}
-                      />
-                    )}
+
+                    <FormField
+                      control={control}
+                      name='banner'
+                      render={({ field: { onChange, value: bannerValue } }) => {
+                        return (
+                          <>
+                            <FormItem className='flex-row'>
+                              <FormMessage />
+                            </FormItem>
+                            {isFeaturedValue && bannerValue && (
+                              <div className='flex flex-col items-center'>
+                                <Image
+                                  src={bannerValue}
+                                  alt='banner image'
+                                  className='w-full rounded-sm object-cover object-center'
+                                  width={1920}
+                                  height={680}
+                                />
+                                <Button
+                                  type='button'
+                                  variant='link'
+                                  size='icon'
+                                  onClick={() => {
+                                    onChange(null);
+                                  }}
+                                >
+                                  Remove
+                                </Button>
+                              </div>
+                            )}
+                            {isFeaturedValue && !bannerValue && (
+                              <UploadButton
+                                endpoint='imageUploader'
+                                onClientUploadComplete={(
+                                  res: { url: string }[]
+                                ) => {
+                                  onChange(res[0].url);
+                                }}
+                                onUploadError={(error: Error) => {
+                                  toast.error(`ERROR! ${error.message}`);
+                                }}
+                                appearance={{
+                                  button: buttonVariants({
+                                    variant: 'default',
+                                  }),
+                                  allowedContent: 'hidden',
+                                }}
+                              />
+                            )}
+                          </>
+                        );
+                      }}
+                    />
                   </div>
                 )}
               />
@@ -291,7 +314,7 @@ export const ProductForm = ({
         </div>
         <div>
           <FormField
-            control={form.control}
+            control={control}
             name='description'
             render={({ field }) => (
               <FormItem className='w-full'>
@@ -309,7 +332,11 @@ export const ProductForm = ({
           />
         </div>
         <div>
-          <Button type='submit' disabled={isPending} className='space-x-1'>
+          <Button
+            type='submit'
+            disabled={isPending || !isDirty || !isValid}
+            className='space-x-1'
+          >
             {isPending && <Loader className='h-4 w-4 animate-spin' />}
             {type === 'Create' ? 'Create Product' : 'Update Product'}
           </Button>
