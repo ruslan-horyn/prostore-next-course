@@ -2,22 +2,23 @@
 
 import { auth, signIn, signOut as signOutAuth } from 'auth';
 
+import type { UserFormSchemaType } from '@/components/shared/admin/user-form';
 import { prisma } from '@/lib/prisma';
+import type { PaymentMethod } from '@/types/payment-method';
+import type { PaginationParams } from '@/types/shared';
 import type { ShippingAddress } from '@/types/shipping-address';
 import { hashSync } from 'bcrypt-ts-edge';
+import { revalidatePath } from 'next/cache';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
+import { DEFAULT_PAGINATION_LIMIT, USER_ROLES } from '../constants';
 import { formatError } from '../error-handlers';
+import { calculateTotalPages } from '../utils';
 import {
+  paymentMethodSchema,
   shippingAddressSchema,
   signInFormSchema,
   signUpFormSchema,
-  paymentMethodSchema,
 } from '../validators';
-import type { PaymentMethod } from '@/types/payment-method';
-import type { PaginationParams } from '@/types/shared';
-import { calculateTotalPages } from '../utils';
-import { DEFAULT_PAGINATION_LIMIT, USER_ROLES } from '../constants';
-import { revalidatePath } from 'next/cache';
 
 export async function signInWithCredentials(
   _prevState: unknown,
@@ -92,6 +93,24 @@ export async function getUserById(id: string) {
   }
 
   return user;
+}
+export async function updateUser(data: UserFormSchemaType) {
+  try {
+    await prisma.user.update({
+      where: { id: data.id },
+      data: {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+      },
+    });
+
+    revalidatePath('/admin/users');
+
+    return { success: true, message: 'User updated successfully' };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
 }
 
 export async function getAllUsers({
