@@ -3,7 +3,7 @@
 import { auth, signIn, signOut as signOutAuth } from 'auth';
 
 import { prisma } from '@/lib/prisma';
-import { ShippingAddress } from '@/types/shipping-address';
+import type { ShippingAddress } from '@/types/shipping-address';
 import { hashSync } from 'bcrypt-ts-edge';
 import { isRedirectError } from 'next/dist/client/components/redirect-error';
 import { formatError } from '../error-handlers';
@@ -14,6 +14,10 @@ import {
   paymentMethodSchema,
 } from '../validators';
 import type { PaymentMethod } from '@/types/payment-method';
+import type { PaginationParams } from '@/types/shared';
+import { calculateTotalPages } from '../utils';
+import { DEFAULT_PAGINATION_LIMIT, USER_ROLES } from '../constants';
+import { revalidatePath } from 'next/cache';
 
 export async function signInWithCredentials(
   _prevState: unknown,
@@ -88,6 +92,50 @@ export async function getUserById(id: string) {
   }
 
   return user;
+}
+
+export async function getAllUsers({
+  page = 1,
+  limit = DEFAULT_PAGINATION_LIMIT,
+}: PaginationParams) {
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    }),
+    prisma.user.count(),
+  ]);
+
+  const totalPages = calculateTotalPages({
+    count: total,
+    limit,
+  });
+
+  return {
+    users,
+    totalPages,
+  };
+}
+
+export async function deleteUser(id: string) {
+  try {
+    const session = await auth();
+
+    if (session?.user?.role !== USER_ROLES.ADMIN) {
+      throw new Error('User is not authorized');
+    }
+
+    await prisma.user.delete({
+      where: { id },
+    });
+
+    revalidatePath('/admin/users');
+
+    return { success: true, message: 'User deleted successfully' };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
 }
 
 export const updateUserAddress = async (data: ShippingAddress) => {

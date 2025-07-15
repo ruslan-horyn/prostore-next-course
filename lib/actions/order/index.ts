@@ -3,7 +3,7 @@
 import { auth } from '@/auth';
 import { Prisma } from '@/generated/prisma';
 import { getMyCart } from '@/lib/cart/get-my-cart';
-import { envs, PAGE_SIZE } from '@/lib/constants';
+import { envs, DEFAULT_PAGINATION_LIMIT } from '@/lib/constants';
 import { formatError } from '@/lib/error-handlers';
 import { paypal } from '@/lib/paypal';
 import { prisma } from '@/lib/prisma';
@@ -241,7 +241,7 @@ export const approvePayPalOrder = async (
 };
 
 export const getMyOrders = async ({
-  limit = PAGE_SIZE,
+  limit = DEFAULT_PAGINATION_LIMIT,
   page,
 }: {
   limit?: number;
@@ -344,7 +344,7 @@ export const getOrderSummary = async () => {
 };
 
 export async function getAllOrders({
-  limit = PAGE_SIZE,
+  limit = DEFAULT_PAGINATION_LIMIT,
   page,
 }: {
   limit?: number;

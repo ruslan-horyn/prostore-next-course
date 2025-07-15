@@ -3,7 +3,7 @@
 import { Product } from '@/types/product';
 import { prisma } from '../prisma';
 import { convertToPlainObject } from '../utils';
-import { envs, PAGE_SIZE } from '../constants';
+import { envs, DEFAULT_PAGINATION_LIMIT } from '../constants';
 import { revalidatePath } from 'next/cache';
 import { formatError } from '../error-handlers';
 import { insertProductSchema, updateProductSchema } from '../validators';
@@ -38,7 +38,7 @@ export async function getProductById(id: string) {
 }
 
 export async function getAllProducts({
-  limit = PAGE_SIZE,
+  limit = DEFAULT_PAGINATION_LIMIT,
   page,
 }: {
   query: string;
